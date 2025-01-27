@@ -1,1 +1,6 @@
-print="hello world"
+print ("1.for add")
+print("2. for divide")
+print ("3. for multiply")
+print("4. for subtract")
+print("5. for root")
+print ("6. for percent")
