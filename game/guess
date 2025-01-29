@@ -5,11 +5,11 @@ guess = 0
 
 while guess !=number:
 
-    guess = int(input("enter guess:"))
+    guess = int(input("Угадай цифру:"))
 
     if (guess<number):
-         print("guess higher!")
+         print("еще выше!")
     elif(guess>number):
-         print("guess lower!")
+         print("еще ниже!")
     else:
-         print("you won")
+         print("победа!!!")
