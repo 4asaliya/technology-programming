@@ -24,4 +24,3 @@ final_price=amount - discount_amount
 
 print(f"Скидка:{discount *100:.0f}%")
 print(f"Итоговая сумма :${final_price:2f}")
-
