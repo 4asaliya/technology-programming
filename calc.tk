@@ -1,0 +1,145 @@
+import tkinter as tk
+import math
+
+class CalculatorSelector:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Выбор калькулятора")
+        self.root.geometry("300x200")
+        self.root.configure(bg='#f0f0f0')
+        
+        label = tk.Label(self.root, text="Выберите калькулятор:", font=('Arial', 16), bg='#f0f0f0')
+        label.pack(pady=20)
+        
+        btn_standard = tk.Button(self.root, text="Стандартный", font=('Arial', 14), command=self.open_standard, bg='#4ECDC4', width=15)
+        btn_standard.pack(pady=10)
+        
+        btn_scientific = tk.Button(self.root, text="Научный", font=('Arial', 14), command=self.open_scientific, bg='#45B7D1', width=15)
+        btn_scientific.pack(pady=10)
+        
+        self.root.mainloop()
+    
+    def open_standard(self):
+        self.root.destroy()
+        StandardCalculator()
+    
+    def open_scientific(self):
+        self.root.destroy()
+        ScientificCalculator()
+
+class BaseCalculator(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.expression = ""
+        self.equation = tk.StringVar()
+        self.create_widgets()
+        self.create_base_buttons()
+
+    def create_widgets(self):
+        entry_frame = tk.Frame(self)
+        entry_frame.grid(row=0, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
+
+        back_button = tk.Button(entry_frame, text="←", font=('Arial', 14), command=self.go_back, bg='#FF6B6B', width=3)
+        back_button.grid(row=0, column=0, padx=5)
+
+        entry = tk.Entry(entry_frame, textvariable=self.equation, font=('Arial', 20), bg='white', fg='black', borderwidth=2, relief='sunken', justify='right')
+        entry.grid(row=0, column=1, columnspan=4, padx=5, pady=5, sticky='nsew')
+
+    def on_button_click(self, char):
+        if char == '=':
+            self.calculate()
+        elif char == 'Clear':
+            self.clear()
+        else:
+            self.expression += str(char)
+            self.equation.set(self.expression)
+
+    def calculate(self):
+        try:
+            result = str(eval(self.expression))
+            self.equation.set(result)
+            self.expression = ""
+        except:
+            self.equation.set(" error ")
+            self.expression = ""
+
+    def clear(self):
+        self.expression = ""
+        self.equation.set("")
+
+    def create_base_buttons(self):
+        base_buttons = [
+            ('7', 2, 0), ('8', 2, 1), ('9', 2, 2), ('/', 2, 3),
+            ('4', 3, 0), ('5', 3, 1), ('6', 3, 2), ('-', 3, 3),
+            ('1', 4, 0), ('2', 4, 1), ('3', 4, 2), ('+', 4, 3),
+            ('0', 5, 0), ('.', 5, 1), ('=', 5, 2), ('Clear', 5, 3)
+        ]
+        
+        for (text, row, col) in base_buttons:
+            bg_color = '#FF6B6B' if text in '+-*/=.' else '#4ECDC4'
+            fg_color = 'white' if text in '+-*/=.' else 'black'
+            
+            action = lambda x=text: self.on_button_click(x)
+            button = tk.Button(self, text=text, font=('Arial', 14), fg=fg_color, bg=bg_color, command=action, borderwidth=1, relief='raised', width=5, height=2)
+            button.grid(row=row, column=col, padx=2, pady=2, sticky='nsew')
+
+    def go_back(self):
+        self.destroy()
+        CalculatorSelector()
+
+class StandardCalculator(BaseCalculator):
+    def __init__(self):
+        super().__init__()
+        self.title("Standard Calculator")
+        self.geometry("300x400")
+        self.configure(bg='#2D2D2D')
+        self.minsize(250, 350)
+
+class ScientificCalculator(BaseCalculator):
+    def __init__(self):
+        super().__init__()
+        self.title("Scientific Calculator")
+        self.geometry("400x550")
+        self.configure(bg='#34495E')
+        self.create_scientific_buttons()
+        self.create_discriminant_section()
+        self.minsize(350, 500)
+
+    def create_scientific_buttons(self):
+        scientific_buttons = [
+            ('sin', 1, 0), ('cos', 1, 1), ('tan', 1, 2), ('log', 1, 3), ('ln', 1, 4),
+            ('sqrt', 4, 4), ('^', 3, 4), ('(', 2, 4), (')', 1, 4)
+        ]
+        
+        for (text, row, col) in scientific_buttons:
+            action = lambda x=text: self.on_button_click(x)
+            button = tk.Button(self, text=text, font=('Arial', 14), fg='white', bg='#45B7D1', command=action, borderwidth=1, relief='raised', width=5, height=2)
+            button.grid(row=row, column=col, padx=2, pady=2, sticky='nsew')
+
+    def create_discriminant_section(self):
+        label = tk.Label(self, text="D = b² - 4ac", font=('Arial', 14), bg='#34495E', fg='white')
+        label.grid(row=6, column=0, columnspan=5, pady=10)
+        
+        self.entry_a = tk.Entry(self, font=('Arial', 12), width=5)
+        self.entry_b = tk.Entry(self, font=('Arial', 12), width=5)
+        self.entry_c = tk.Entry(self, font=('Arial', 12), width=5)
+        
+        self.entry_a.grid(row=7, column=1, padx=5, pady=5)
+        self.entry_b.grid(row=7, column=2, padx=5, pady=5)
+        self.entry_c.grid(row=7, column=3, padx=5, pady=5)
+        
+        btn_discriminant = tk.Button(self, text="Вычислить D", font=('Arial', 12), bg='#FF6B6B', fg='white', command=self.calculate_discriminant)
+        btn_discriminant.grid(row=8, column=1, columnspan=3, pady=10)
+
+    def calculate_discriminant(self):
+        try:
+            a = float(self.entry_a.get())
+            b = float(self.entry_b.get())
+            c = float(self.entry_c.get())
+            D = b**2 - 4*a*c
+            self.equation.set(f"D = {D}")
+        except:
+            self.equation.set("Ошибка ввода")
+
+if __name__ == "__main__":
+    CalculatorSelector()
